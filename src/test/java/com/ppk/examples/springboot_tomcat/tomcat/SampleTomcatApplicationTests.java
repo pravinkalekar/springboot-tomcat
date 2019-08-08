@@ -16,6 +16,8 @@
 
 package com.ppk.examples.springboot_tomcat.tomcat;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,8 +29,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Basic integration tests for demo application.
@@ -44,6 +44,11 @@ public class SampleTomcatApplicationTests {
 
 	@Value("${local.server.port}")
 	private int port;
+	
+	@Test
+	public void testDefaultRun() throws Exception {
+		SampleTomcatApplication.main(new String[0]);
+	}
 
 	@Test
 	public void testHome() throws Exception {
@@ -51,6 +56,30 @@ public class SampleTomcatApplicationTests {
 				"http://localhost:" + this.port, String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
 		assertEquals("Hello World", entity.getBody());
+	}
+	
+	@Test
+	public void testTestContext() {
+		ResponseEntity<String> responseEntity = new TestRestTemplate().getForEntity(
+				"http://localhost:" + this.port + "/test?name=Pravin", String.class);
+		assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+		assertEquals("Hello Pravin", responseEntity.getBody());
+	}
+	
+	@Test
+	public void testTestContextWithoutNameParam() {
+		ResponseEntity<String> responseEntity = new TestRestTemplate().getForEntity(
+				"http://localhost:" + this.port + "/test", String.class);
+		assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+		assertEquals("Hello World", responseEntity.getBody());
+	}
+	
+	@Test
+	public void testTestContextWithEmptyNameParam() {
+		ResponseEntity<String> responseEntity = new TestRestTemplate().getForEntity(
+				"http://localhost:" + this.port + "/test?name", String.class);
+		assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+		assertEquals("Hello World", responseEntity.getBody());
 	}
 
 }
